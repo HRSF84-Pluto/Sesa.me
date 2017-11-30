@@ -2,7 +2,7 @@
 // /login, /signup, /submissions
 // These handlers will utilize instances of sequelize models to query the database directly
 
-const db = require('../db/index.js');
+const sequelize = require('../db/index.js');
 const bcrypt = require('bcrypt');
 const Sequelize = require('sequelize');
 
@@ -156,7 +156,7 @@ module.exports = {
           id: req.body.id,
         }
       })
-      //update that message with admin's response
+        //update that message with admin's response
         .then((message) => {
           message.update({
             admin_response: req.body.admin_response || 'Case marked as complete',
