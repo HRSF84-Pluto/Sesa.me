@@ -1,5 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { withRouter, Link } from 'react-router-dom';
+import $ from 'jquery';
 import Button from 'react-bootstrap/lib/Button';
 import FormControl from 'react-bootstrap/lib/FormControl';
 import ControlLabel from 'react-bootstrap/lib/ControlLabel';
@@ -14,10 +16,10 @@ class Signup extends React.Component {
       username: '',
       password: '',
       checkPassword: '',
-      admin: '',
       firstName: '',
-      lastName: '',
+      lastName: ''
     };
+    this.hanldeSubmit = this.hanldeSubmit.bind(this);
   }
 
   onUsernameChange(e) {
@@ -56,27 +58,72 @@ class Signup extends React.Component {
     });
   }
 
-  onSubmit() {
-    if (this.state.username === '') {
-      return alert('Oops! Username cannot be empty. Let\'s try that again.');
-    }
+  hanldeSubmit() {
 
-    if (this.state.firstName === '') {
-      return alert('Oops! First name cannot be empty. Let\'s try that again.');
-    }
+    // if (this.state.username === '') {
+    //   return alert('Oops! Username cannot be empty. Let\'s try that again.');
+    // }
+    // if (this.state.firstName === '') {
+    //   return alert('Oops! First name cannot be empty. Let\'s try that again.');
+    // }
+    // if (this.state.password.length < 8) {
+    //   return alert('Oops! Password must be at least 8 characters long. Let\'s try that again.');
+    // }
+    // if (this.state.password !== this.state.checkPassword) {
+    //   return alert('Oops! Make sure both password fields match.');
+    // }
 
-    if (this.state.password.length < 8) {
-      return alert('Oops! Password must be at least 8 characters long. Let\'s try that again.');
-    }
-    if (this.state.password !== this.state.checkPassword) {
-      return alert('Oops! Make sure both password fields match.');
-    }
-    this.props.createUser(this.state.username, this.state.password, this.state.admin, this.state.firstName, this.state.lastName);
+    return new Promise((resolve, reject) => {
+      $.ajax({
+        method: 'POST',
+        url: '/signup',
+        data: {
+          username: this.state.username,
+          hash: this.state.password,
+          salt: '',
+          account_type: 'admin',
+          first_name: this.state.firstName,
+          last_name: this.state.lastName,
+        },
+        success: (data) => {
+          alert('You have successfully created an account');
+          console.log('back from server', data);
+          this.props.addUser(this.state.username);
+          resolve(data);
+        },
+        error: (error) => {
+          console.log(error);
+          alert('Woops, looks like that username is already taken!');
+          reject(error);
+        },
+      });
+    });
   }
 
 
-  // On deployment: remove option to sign up as an admin. This will be done directly within the database.
   render() {
+    //This button signs the user up into our database
+    const ButtonSignUp = withRouter(({history}) => (
+      <Button
+        className="sign-up-button"
+        bsStyle="primary"
+        onClick={()=> {
+          this.hanldeSubmit()
+            .then(()=> history.push('/Game'))
+            .catch(()=> console.log('there was an error'))
+        }}>
+        Create Account</Button>
+    ))
+    //This button takes the user to the sign in page
+    const ButtonSignIn = withRouter(({history}) => (
+      <Button
+        className="sign-up-button"
+        bsStyle="primary"
+        onClick={()=> {
+          history.push('/Login')
+        }}>
+        Return to log in page</Button>
+    ))
     return (
       <div className="container signup-container">
         <PageHeader><small>Signup</small></PageHeader>
@@ -103,8 +150,8 @@ class Signup extends React.Component {
 
         <div className="col-centered">
           <ButtonToolbar>
-            <Button className="sign-up-button" bsStyle="primary" onClick={this.onSubmit.bind(this)}>Create Account</Button>
-            <Button className="sign-up-button" bsStyle="primary" onClick={this.props.showLogIn}>Return to log in page</Button>
+            <ButtonSignUp/>
+            <ButtonSignIn/>
           </ButtonToolbar>
         </div>
       </div>
@@ -113,7 +160,3 @@ class Signup extends React.Component {
 }
 
 export default Signup;
-
-// check box removed from line 103...
-// (<Checkbox className="admin-checkbox" onChange={this.onAdminCheck.bind(this)}>Administrator</Checkbox>
-//         <br></br>)

@@ -1,5 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { withRouter, Link} from 'react-router-dom';
+import $ from 'jquery';
 import Button from 'react-bootstrap/lib/Button';
 import FormControl from 'react-bootstrap/lib/FormControl';
 import ControlLabel from 'react-bootstrap/lib/ControlLabel';
@@ -12,6 +14,7 @@ class Login extends React.Component {
       username: '',
       password: '',
     };
+    this.handleSubmit = this.handleSubmit.bind(this)
   }
 
   onUsernameChange(e) {
@@ -26,25 +29,64 @@ class Login extends React.Component {
     });
   }
 
-  onSubmit() {
-    this.props.logInUser(this.state.username, this.state.password);
+  handleSubmit() {
+    return new Promise((resolve, reject) => {
+      $.ajax({
+        method: 'POST',
+        url: '/login',
+        data: {
+          username: this.state.username,
+          hash: this.state.password,
+        },
+        success: (data) => {
+          console.log('back from loggin')
+          this.props.addUser(this.state.username);
+          resolve(data);
+        },
+        error: (error) => {
+          alert('Incorrect password');
+          console.log('Unsuccessful login with error: ', error);
+          reject(error);
+        },
+      });
+    });
   }
 
   render() {
+    //This button redirrects the user to the Signup page
+    const ButtonSignUp = withRouter(({ history }) => (
+      <Button
+        className="login-button"
+        bsStyle="primary"
+        onClick={()=> {
+          history.push('/Signup')
+        }}>
+        Signup</Button>
+    ))
+    const ButtonLogin = withRouter(({ history }) => (
+      <Button
+        className="login-button"
+        bsStyle="primary"
+        onClick={()=> {
+          this.handleSubmit()
+            .then(()=> history.push('/Game'))
+            .catch(()=> console.log('there was an error'))
+        }}>
+        Signup</Button>
+    ))
     return (
       <div className="container login-container">
         <div>
-          <PageHeader><small>Login to report a bug:</small></PageHeader>
+          <PageHeader><small>Login:</small></PageHeader>
           <ControlLabel className="login-username" >Username<FormControl type="text" placeholder="username..." onChange={this.onUsernameChange.bind(this)} /></ControlLabel>
           <br />
           <ControlLabel className="login-password">Password<FormControl type="password" placeholder="password..." onChange={this.onPasswordChange.bind(this)} /></ControlLabel>
           <br />
-          <Button bsStyle="primary" className="login-button" onClick={this.onSubmit.bind(this)}>Log In</Button>
-          <br />
+          <ButtonLogin/>
         </div>
         <div>
           <PageHeader><small>Don't have an account? Sign up:</small></PageHeader>
-          <Button bsStyle="primary" onClick={this.props.showSignUp}>Signup</Button>
+          <ButtonSignUp/>
         </div>
       </div>
     );

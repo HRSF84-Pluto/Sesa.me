@@ -6,6 +6,7 @@ const config = require(path.join(__dirname, '../..', 'config', 'config.json'))[e
 const sequelize = new Sequelize(config.database, config.username, config.password, config);
 const db = {};
 
+
 sequelize.query('CREATE DATABASE IF NOT EXISTS messages')
   .then(() => console.log('Database created'));
 

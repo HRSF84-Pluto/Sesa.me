@@ -1,3 +1,20 @@
+.main {
+  margin: 0;
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.main-header {
+  font-size: 100px;
+}
+.admin-loggin-button-real{
+  position: fixed;
+  margin: 0;
+  top: 10px;
+  right: 10px;
+}
+
 body {
   background: linear-gradient(45deg, #EAFFF0, #DFE7FF);
   font: 14px "Century Gothic", Futura, sans-serif;
@@ -81,12 +98,14 @@ ol, ul {
   min-width: 250px;
 }
 
+/*====MAIN====*/
+
 /*====CLEARFIX====*/
 .group:before,
 .group:after {
   content: "";
   display: table;
-} 
+}
 .group:after {
   clear: both;
 }
@@ -250,8 +269,3 @@ ol, ul {
   margin-top: 10px;
   margin-right: 10px;
 }
-
-
-
-
-
