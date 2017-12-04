@@ -414,6 +414,11 @@ div > .chat-log {
 
 }
 
+.userInfo{
+  height: 400px;
+  overflow-y:auto
+}
+
 
 
 /*Make Character*/

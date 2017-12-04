@@ -9,7 +9,7 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 const morgan = require('morgan');
 const session = require('express-session');
-const MySQLStore = require('express-mysql-session')(session)
+const MySQLStore = require('express-mysql-session')(session);
 const flash = require('connect-flash');
 const passport = require('passport');
 const env = require('dotenv').load();
@@ -22,11 +22,11 @@ const PORT = process.env.PORT || 3000;
 // USE CREDENTIALS FOR LOCAL MACHINE
 // To run locally --> DBSERVER=localhost DBUSER=root DBPASSWORD=38ankeny npm run server-dev
 const options = {
-  host: process.env.DBSERVER ||'us-cdbr-iron-east-05.cleardb.net',
+  host: process.env.DBSERVER || 'us-cdbr-iron-east-05.cleardb.net',
   port: process.env.PORT,
-  user: process.env.DBUSER  ||'ba3f260f7ba4c4',
+  user: process.env.DBUSER || 'ba3f260f7ba4c4',
   password: process.env.DBPASSWORD || '0e12068a',
-  database: 'messages' ||'heroku_e67b3a46e336139',
+  database: 'messages' || 'heroku_e67b3a46e336139',
   checkExpirationInterval: 1,
   expiration: 1,
 };
@@ -51,6 +51,7 @@ const loginRoute = require('./routes/login');
 const logoutRoute = require('./routes/logout');
 const submissionRoute = require('./routes/submissions');
 const locationRoute = require('./routes/location');
+const userDataRoute = require('./routes/userData');
 
 // middleware
 app.use(morgan('dev'));
@@ -74,10 +75,12 @@ app.use(flash());
 // express router middleware
 app.use('/signup', signupRoute);
 app.use('/login', loginRoute);
+app.use('/userData', userDataRoute);
 // app.use(checkAuthentication);
 app.use('/logout', logoutRoute);
 app.use('/submissions', submissionRoute);
 app.use('/location', locationRoute);
+
 
 // react router's path
 app.get('/**', (req, res) => {
@@ -118,13 +121,13 @@ io.on('connection', function(socket) {
   // clients[socket.id] = socket;
   socket.on('join:room', (userData) => {
     socket.username = userData.username;
-    socket.roomname = userData.roomname
+    socket.roomname = userData.roomname;
     socket.join(userData.roomname);
-    users[userData.username] =  userData.username;
+    users[userData.username] = userData.username;
     rooms[userData.roomname] = userData.roomname;
     console.log('Joined the room');
 
-    if (socket.username === "admin_1") {
+    if (socket.username === 'admin_1') {
       sequelize.User.findOne({
         where: {
           username: socket.username,
@@ -148,22 +151,22 @@ io.on('connection', function(socket) {
       username: '',
       message: `You have connected to room ${userData.roomname}`,
       // content: `You have connected to room ${userData.roomname}`,
-    }
+    };
     socket.emit('update:chat', welcomeMessage);
     var connectionMessage = {
       id: id++,
       username: '',
       message: userData.username + ' has connected to the room',
       // content: `${userData.username} has connected to the room`,
-    }
+    };
     socket.broadcast.to(socket.roomname).emit('update:chat', connectionMessage);
-  })
+  });
 
 
   socket.on('send:message', (msg) => {
-    console.log('Users: ', users)
-    console.log('Rooms: ', rooms)
-    console.log('Message: ', msg)
+    console.log('Users: ', users);
+    console.log('Rooms: ', rooms);
+    console.log('Message: ', msg);
     id = id++;
     sequelize.User.findOne({
       where: {
@@ -189,18 +192,18 @@ io.on('connection', function(socket) {
       message: msg.message,
       content: `${msg.username}: ${msg.message}`
     });
-  })
+  });
 
   socket.on('disconnect', () => {
     delete users[socket.username];
     delete rooms[socket.roomname];
-  })
+  });
 });
 
 //STEP 1: Just get rooms to work between anyone
-  //get messages in box to scroll within item
+//get messages in box to scroll within item
 //STEP 2: Store messages to each user
-  //messages will require some order to show up
+//messages will require some order to show up
 //messages will have ids
 // messages {
 //   id:

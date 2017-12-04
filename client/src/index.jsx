@@ -59,7 +59,6 @@ class App extends React.Component {
     };
 
     const success = (pos)=> {
-      //console.log("coordinates ", pos.coords);
       const crd = pos.coords;
       //console.log(crd);
       const url = `http://maps.googleapis.com/maps/api/geocode/json?latlng=${crd.latitude},${crd.longitude}&sensor=true`;
@@ -72,7 +71,6 @@ class App extends React.Component {
           const long = crd.longitude;
           const location = response.results[0]['formatted_address'];
           this.setState({lat, long, location});
-          //console.log(this.state, "MY STATE");
         }
       });
     };
