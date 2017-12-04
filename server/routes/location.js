@@ -8,7 +8,7 @@ router.get('/', (req, res) => {
   const target = url[url.length-1].split('&').join('').split('long=');
   let latd = target[0].split('lat=');
   latd.shift();
-  target.splice(0,1,latd[0]);
+  target.splice(0, 1, latd[0]);
   const lat = Number(target[0]);
   const long = Number(target[1]);
   //console.log(lat, long, "my lat and long");

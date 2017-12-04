@@ -33,35 +33,35 @@ class Login extends React.Component {
     });
   }
 
-  componentDidMount(){
-      const options = {
-        enableHighAccuracy: true,
-        timeout: 4000,
-        maximumAge: 0
-      };
+  componentWillMount() {
+    const options = {
+      enableHighAccuracy: true,
+      timeout: 4000,
+      maximumAge: 0
+    };
 
-      const success = (pos)=> {
-        //console.log("coordinates ", pos.coords);
-        const crd = pos.coords;
-        //console.log(crd);
-        const url = `http://maps.googleapis.com/maps/api/geocode/json?latlng=${crd.latitude},${crd.longitude}&sensor=true`;
-        $.ajax({
-          url: url,
-          type: "GET",
-          success: response=>{
-            const lat = crd.latitude;
-            const long = crd.longitude;
-            const location = response.results[0]['formatted_address'];
-            this.setState({lat, long,location});
-          }
-        });
-      };
+    const success = (pos)=> {
+      console.log("coordinates ", pos.coords);
+      const crd = pos.coords;
+      //console.log(crd);
+      const url = `http://maps.googleapis.com/maps/api/geocode/json?latlng=${crd.latitude},${crd.longitude}&sensor=true`;
+      $.ajax({
+        url: url,
+        type: 'GET',
+        success: response=>{
+          const lat = crd.latitude;
+          const long = crd.longitude;
+          const location = response.results[0]['formatted_address'];
+          this.setState({lat, long, location});
+        }
+      });
+    };
 
-      function error(err) {
-        console.warn(`ERROR(${err.code}): ${err.message}`);
-      }
+    function error(err) {
+      console.warn(`ERROR(${err.code}): ${err.message}`);
+    }
 
-      navigator.geolocation.getCurrentPosition(success, error, options);
+    navigator.geolocation.getCurrentPosition(success, error, options);
 
   }
 
@@ -83,7 +83,7 @@ class Login extends React.Component {
           reject(error);
         },
       });
-    })
+    });
 
   }
 
@@ -110,7 +110,7 @@ class Login extends React.Component {
         onClick={()=> {
           this.handleSubmit()
             .then(()=> history.push('/Game'))
-            .catch(()=> console.log(`Invalid credentials`));
+            .catch(()=> console.log('Invalid credentials'));
         }}>
         Login</Button>
     ));
