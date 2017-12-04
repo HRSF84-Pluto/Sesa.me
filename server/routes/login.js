@@ -14,6 +14,7 @@ passport.use('local-signin', new LocalStrategy({
   passReqToCallback: true,
 },
 function(req, username, hash, done) {
+  console.log(req.body.location, req.body.long, req.body.lat, 'inside login component');
   User.findOne({
     where: {
       username: username,
@@ -21,6 +22,18 @@ function(req, username, hash, done) {
   })
     .then((user) => {
       if (user) {
+        user.update({
+          location: req.body.location,
+          lat: req.body.lat,
+          long: req.body.long
+        })
+          .then(() => {
+            console.log('Successful location update');
+          })
+          .catch(() => {
+            console.log('Error updating user location');
+          });
+
         // source of login should match the user record's account_type access
         if (user.get('account_type') !== req.body.source) {
           console.log(`user record account_type: ${user.get('account_type')} vs. req body acct_type: ${req.body.source}`)

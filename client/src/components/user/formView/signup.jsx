@@ -59,7 +59,7 @@ class Signup extends React.Component {
   }
 
   hanldeSubmit() {
-    console.log('im inside')
+    console.log('im inside', this.props.location, this.props.lat, this.props.long);
 
     return new Promise((resolve, reject) => {
       $.ajax({

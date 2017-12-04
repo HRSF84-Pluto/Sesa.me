@@ -1,93 +1,116 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import Message from './message.jsx';
+import React, {Component} from 'react';
 import Button from 'react-bootstrap/lib/Button';
-import SocialServicesMap from './socialServicesMap.jsx';
+import Tab from 'react-bootstrap/lib/Tab';
+import Tabs from 'react-bootstrap/lib/Tabs';
+import moment from 'moment';
+import $ from 'jquery';
+import Info from './info.jsx';
+import Map from './map.jsx';
+import DataMap from './datamap.jsx';
+import ChatBox from '../user/formView/chatBox.jsx';
 
-class AdminView extends React.Component {
+
+class AdminView extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      // example data for mocking
-      messages: [
-        {
-          id: 1,
-          createdAt: '10/20/2017',
-          first_name: 'Jane',
-          last_name: 'Smith',
-          user_message: 'Test message',
-          user_contact: 'Test contact info',
-          user_urgency: '3',
-        },
-        {
-          id: 2,
-          createdAt: '10/19/2017',
-          first_name: 'Lady',
-          last_name: 'Person',
-          user_message: 'Test message 2',
-          user_contact: 'Test contact info 2',
-          user_urgency: '1',
-        },
-      ],
-      messageId: null,
-      response: '',
-    };
+    this.state = {resArr: [], location: null, lat: null, long: null, userArr: []};
   }
 
-  componentDidMount(){
-
-  }
-////////do THIS THIS UCOMMENT WHEN YOU FIGURE OUT WHATS WRONG
-  // componentDidMount() {
-  //   this.props.retrieveOpenMessages((data) => {
-  //     console.log('ADMIN MESSAGES', data);
-  //     this.setState({
-  //       // may have to change 'data' depending on format
-  //       messages: data,
-  //     });
-  //   });
-  // }
-
-  // componentWillReceiveProps() {
-  //   this.props.retrieveOpenMessages( (data) => {
-  //     console.log('ADMIN MESSAGES', data);
-  //     this.setState({
-  //       //may have to change 'data' depending on format
-  //       messages: data
-  //     });
-  //   });
-  // }
-
-  // sets state variable messageId to currently selected message's id
-  setResponseId(id) {
-    this.setState({
-      messageId: id,
+  renderUserMap(location, lat, long) {
+    $.ajax({
+      url: '/location',
+      data: {lat, long},
+      type: 'GET',
+      success: resArr=>{
+        console.log('RESPONSE... ');
+        console.log(resArr);
+        this.setState({resArr, location, lat, long});
+      }
     });
   }
 
-  // calls the markAsComplete method in index.jsx to send id and status to server
-  setStatus(id) {
-    this.props.markAsComplete(id);
+
+  componentDidMount() {
+    this.getUserData();
   }
 
+  getUserData() {
+    setTimeout(
+      this.getData.bind(this), 2000);
+
+  }
+
+  getData() {
+    $.ajax({
+      url: '/userData',
+      type: 'GET',
+      success: userArr=>{
+        // console.log('All user data???');
+        this.setState({userArr});
+      },
+      error: (error) => {
+        console.log(error.responseText);
+      }
+    });
+  }
 
   render() {
+    const userArr = this.state.userArr.map((user, i)=>(
+      <div key={i} style={{border: '1px solid black', fontSize: '15px', padding: '40px'}}
+        onClick={this.renderUserMap.bind(this, user.location, user.lat, user.long)}>
+        <p> <b>Username:</b> {user.username}</p>
+        <p> <b>First name:</b> {user.first_name} </p>
+        <p> <b>Lastname:</b> {user.last_name} </p>
+        <p> <b>Location:</b> {user.location ? user.location : 'no location entered'} </p>
+        <p style={{display: 'none'}}> <b>Lat:</b> {user.lat} </p>
+        <p style={{display: 'none'}}> <b>Long:</b> {user.long} </p>
+        <p> <b>Account created at:</b> {moment(user.createdAt).format('MMMM Do YYYY, h:mm:ss a')} </p>
+        <p> <b>Account updated at:</b> {moment(user.updatedAt).format('MMMM Do YYYY, h:mm:ss a')} </p>
+      </div>
+    ));
     return (
-      <div>
-        {/* <Button onClick={this.props.showLogIn.bind(this)} className="admin-change-user-button" bsSize="small" bsStyle="primary">Sign In as a Different User</Button> */}
-        <div className="admin-header group">
-          <h3 className="welcome-header">Welcome to Your Inbox!</h3>
-          <h4>You can view and respond to user messages here.</h4>
-        </div>
-        {/*<ChatBox />*/}
-        <SocialServicesMap username={this.props.username} roomname={this.props.roomname} userData={this.state.messages} location={this.props.location} lat={this.props.lat} long={this.props.long}/>
-        {/* <ul className="user-message-ul">
-          {this.state.messages.map((message, index) => <Message submitAdminResponse={this.props.submitAdminResponse} setStatus={this.setStatus.bind(this)} setResponseId={this.setResponseId.bind(this)} key={index} message={message} />)}
-        </ul> */}
+      <div className="wrapperAdmin">
+        <div className="boxAdmin headerAdmin">
+          Dashboard
 
+        </div>
+        <div className="boxAdmin sidebarAdmin">
+          Users
+          <div className="userInfo">
+            {userArr}
+          </div>
+        </div>
+        <div className="boxAdmin contentAdmin">
+          <Tabs defaultActiveKey={1} animation={false} id="noanim-tab-example">
+            <Tab eventKey={1} title="User Map">
+              {this.state.resArr.length > 0 ?
+                <Map geolocationInfo={this.state}/> : <div style={{padding: '20px'}}>
+                  <h3>Please click on a user to display user location and services nearby</h3></div>
+              }
+            </Tab>
+            <Tab eventKey={2} title="Data Map">
+              <DataMap/>
+            </Tab>
+          </Tabs>
+          <br /></div>
+        <div className="boxAdmin footerAdmin">
+          <Tabs defaultActiveKey={1} animation={false} id="noanim-tab-example">
+            <Tab eventKey={1} title="Chat">
+              <ChatBox username={this.props.username} roomname={this.props.roomname} />
+            </Tab>
+            <Tab eventKey={2} title="Info">
+              {/*<Info*/}
+              {/*userData={this.props.userData}*/}
+              {/*/>*/}
+            </Tab>
+          </Tabs>
+        </div>
       </div>
     );
+
   }
+
 }
+
 
 export default AdminView;
